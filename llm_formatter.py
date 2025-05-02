@@ -72,11 +72,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', type=str, required=True,
                         help='model path on disk')
-    parser.add_argument('--file_path', type=str, required=True,
+    parser.add_argument('--file_path', type=str, required=False, default="",
                         help='file to refactor, if not specified, --dir_path will be used')
     parser.add_argument('--output', type=str, required=True,
                         help='path to generation result directory')
-    parser.add_argument('--dir_path', type=str, required=True,
+    parser.add_argument('--dir_path', type=str, required=False,
                         help='directory to get files on refactoring from. this argument is ignored if '
                              '--file_path is specified')
     parser.add_argument('--temp_dir', type=str, required=False, default='temp_dir',
@@ -114,6 +114,7 @@ def main():
     pdf_extractor = DocContentExtractor()
     model, tokenizer = load_model(model_path)
 
+
     if file_path != "":
         extract_text(file_path, pdf_dir, srt_dir, pdf_extractor)
         dst_path, few_shot_prompt = get_path_and_prompt(file_path, pdf_dir, srt_dir, few_shot_pdf, few_shot_srt)
@@ -121,16 +122,19 @@ def main():
     else:
         files = os.listdir(dir_path)
         # select only text files:
-        text_files = [f for f in files if magic.from_file(os.path.join(dir_path, f), mime=True) == 'text/plain']
-
-        if len(files) == 0:
+        text_files = [f for f in files if magic.from_file(os.path.join(dir_path, f), mime=True) == 'text/plain' or 
+                      magic.from_file(os.path.join(dir_path, f), mime=True) == 'application/pdf']
+        if len(text_files) == 0:
             print(f'WARNING: no text files exists here - {dir_path}, nothing to parse')
             return
         # extract texts from pdf's and from srt with creating separate pdf and srt directories for it:
         for file in text_files:
             file_path = os.path.join(dir_path, file)
-            extract_text(file, pdf_dir, srt_dir, pdf_extractor)
+            extract_text(file_path, pdf_dir, srt_dir, pdf_extractor)
         # parse pdf's:
         refactor_docs(pdf_dir, output, model, tokenizer, few_shot_pdf)
         # parse srt's
         refactor_docs(srt_dir, output, model, tokenizer, few_shot_srt)
+
+if __name__ == '__main__':
+    main()

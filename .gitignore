@@ -2,3 +2,8 @@
 *.srt
 pisets/
 texts/
+definitions.md
+builder_output/
+llm_output/
+temp_dir/
+test/

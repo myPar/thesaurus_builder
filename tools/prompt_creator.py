@@ -54,7 +54,7 @@ def create_prompt_json(input_file, output_file):
 
 def validate_args(args):
     if not os.path.isfile(args.input_path):
-        raise Exception(f'no such file: {args.input_path}', file=sys.stderr)
+        raise Exception(f'no such file: {args.input_path}')
     if not os.path.isdir(args.output_dir):
         try:
             os.mkdir(args.output_dir)
@@ -79,7 +79,8 @@ def main():
         print('Parse args exception: ' + repr(e), file=sys.stderr)
         parser.print_help()
         return
-    create_prompt_json(input_path, output_file=os.path.join(output_dir, 'prompt.json'))
+    name, ext = os.path.splitext(os.path.basename(input_path))
+    create_prompt_json(input_path, output_file=os.path.join(output_dir, name + '.json'))
 
 
 if __name__ == '__main__':
