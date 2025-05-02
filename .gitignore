@@ -7,3 +7,4 @@ builder_output/
 llm_output/
 temp_dir/
 test/
+__pycache__/*
